@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "dev": "summerhack-dev",
+    "staging": "summerhack-staging",
+    "prod": "summerhack-prod"
+  }
+}
