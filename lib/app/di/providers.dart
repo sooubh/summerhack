@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/ai_constants.dart';
 import '../../shared/models/app_user.dart';
 import '../../shared/models/conversation.dart';
+import '../../shared/models/notification_item.dart';
+import '../../shared/models/upload_item.dart';
 
 enum ShellTab { home, conversations, liveAi, uploads, notifications, profile }
 
@@ -79,6 +81,7 @@ final authControllerProvider = NotifierProvider<AuthController, AuthState>(
 );
 
 final selectedTabProvider = StateProvider<ShellTab>((ref) => ShellTab.home);
+final selectedConversationIdProvider = StateProvider<String?>((_) => 'conv_1');
 
 final conversationsProvider = Provider<List<Conversation>>((ref) {
   final now = DateTime.now();
@@ -109,7 +112,7 @@ final conversationMessagesProvider = Provider.family<List<ConversationMessage>, 
   conversationId,
 ) {
   final now = DateTime.now();
-  return <ConversationMessage>[
+  final baseMessages = <ConversationMessage>[
     ConversationMessage(
       id: '${conversationId}_m1',
       role: 'user',
@@ -123,7 +126,115 @@ final conversationMessagesProvider = Provider.family<List<ConversationMessage>, 
       createdAt: now.subtract(const Duration(minutes: 11)),
     ),
   ];
+
+  if (conversationId == 'conv_2') {
+    return <ConversationMessage>[
+      ...baseMessages,
+      ConversationMessage(
+        id: '${conversationId}_m3',
+        role: 'assistant',
+        text: 'Model locked to ${AiConstants.model}.',
+        createdAt: now.subtract(const Duration(minutes: 9)),
+      ),
+    ];
+  }
+
+  if (conversationId == 'conv_3') {
+    return <ConversationMessage>[
+      ...baseMessages,
+      ConversationMessage(
+        id: '${conversationId}_m3',
+        role: 'user',
+        text: 'Please attach the latest wireframes and notes.',
+        createdAt: now.subtract(const Duration(minutes: 7)),
+      ),
+    ];
+  }
+
+  return baseMessages;
 });
+
+final uploadItemsProvider = Provider<List<UploadItem>>((ref) {
+  final now = DateTime.now();
+  return <UploadItem>[
+    UploadItem(
+      id: 'up_1',
+      fileName: 'homepage_wireframe.png',
+      category: 'image',
+      status: UploadStatus.ready,
+      progress: 100,
+      updatedAt: now.subtract(const Duration(minutes: 22)),
+      sizeBytes: 920000,
+    ),
+    UploadItem(
+      id: 'up_2',
+      fileName: 'requirements_v3.pdf',
+      category: 'document',
+      status: UploadStatus.uploading,
+      progress: 62,
+      updatedAt: now.subtract(const Duration(minutes: 2)),
+      sizeBytes: 2400000,
+    ),
+    UploadItem(
+      id: 'up_3',
+      fileName: 'voice_note_intro.m4a',
+      category: 'audio',
+      status: UploadStatus.failed,
+      progress: 34,
+      updatedAt: now.subtract(const Duration(hours: 1)),
+      sizeBytes: 1500000,
+    ),
+  ];
+});
+
+final notificationItemsProvider = Provider<List<AppNotification>>((ref) {
+  final now = DateTime.now();
+  return <AppNotification>[
+    AppNotification(
+      id: 'noti_1',
+      title: 'Live session ready',
+      body: 'Your latest Gemini Live session has been archived.',
+      createdAt: now.subtract(const Duration(minutes: 5)),
+      isRead: false,
+      route: '/live',
+    ),
+    AppNotification(
+      id: 'noti_2',
+      title: 'Upload complete',
+      body: 'requirements_v3.pdf is now available in conversation context.',
+      createdAt: now.subtract(const Duration(minutes: 45)),
+      isRead: true,
+      route: '/uploads',
+    ),
+    AppNotification(
+      id: 'noti_3',
+      title: 'New message',
+      body: 'Project Planning received a new assistant summary.',
+      createdAt: now.subtract(const Duration(hours: 2)),
+      isRead: false,
+      route: '/conversations',
+    ),
+  ];
+});
+
+final unreadNotificationsCountProvider = Provider<int>((ref) {
+  final notifications = ref.watch(notificationItemsProvider);
+  return notifications.where((item) => !item.isRead).length;
+});
+
+class HomeKpis {
+  const HomeKpis({
+    required this.conversations,
+    required this.liveMessages,
+    required this.uploads,
+    required this.unreadAlerts,
+  });
+
+  final int conversations;
+  final int liveMessages;
+  final int uploads;
+  final int unreadAlerts;
+}
 
 class LiveAiState {
   const LiveAiState({
@@ -204,3 +315,17 @@ class LiveAiController extends Notifier<LiveAiState> {
 final liveAiControllerProvider = NotifierProvider<LiveAiController, LiveAiState>(
   LiveAiController.new,
 );
+
+final homeKpisProvider = Provider<HomeKpis>((ref) {
+  final conversationCount = ref.watch(conversationsProvider).length;
+  final uploadCount = ref.watch(uploadItemsProvider).length;
+  final unreadAlerts = ref.watch(unreadNotificationsCountProvider);
+  final liveMessages = ref.watch(liveAiControllerProvider).messages.length;
+
+  return HomeKpis(
+    conversations: conversationCount,
+    liveMessages: liveMessages,
+    uploads: uploadCount,
+    unreadAlerts: unreadAlerts,
+  );
+});

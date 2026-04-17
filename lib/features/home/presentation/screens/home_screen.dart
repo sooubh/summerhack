@@ -12,6 +12,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authControllerProvider).user;
+    final kpis = ref.watch(homeKpisProvider);
     return SafeArea(
       child: ListView(
         padding: const EdgeInsets.all(20),
@@ -29,20 +30,30 @@ class HomeScreen extends ConsumerWidget {
           Wrap(
             spacing: 12,
             runSpacing: 12,
-            children: const [
-              _KpiCard(title: 'Conversations', value: '12'),
-              _KpiCard(title: 'Live sessions', value: '4'),
-              _KpiCard(title: 'Uploads', value: '7'),
-              _KpiCard(title: 'Unread alerts', value: '3'),
+            children: [
+              _KpiCard(title: 'Conversations', value: '${kpis.conversations}'),
+              _KpiCard(title: 'Live messages', value: '${kpis.liveMessages}'),
+              _KpiCard(title: 'Uploads', value: '${kpis.uploads}'),
+              _KpiCard(title: 'Unread alerts', value: '${kpis.unreadAlerts}'),
             ],
           ),
           const SizedBox(height: 20),
-          const Card(
+          Card(
             child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Text(
-                'This app scaffold supports mobile and web with a shared '
-                'adaptive shell, feature tabs, and Gemini Live-ready state providers.',
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: const [
+                  Text(
+                    'Feature status',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  SizedBox(height: 8),
+                  Text('• Auth + shell flow ready'),
+                  Text('• Conversations + timeline mock ready'),
+                  Text('• Live AI text session state ready'),
+                  Text('• Upload and notifications mock states ready'),
+                ],
               ),
             ),
           ),
