@@ -1,12 +1,1 @@
-{
-  "functions": {
-    "source": "functions"
-  },
-  "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  },
-  "storage": {
-    "rules": "storage.rules"
-  }
-}
+{"functions":{"source":"functions"},"firestore":{"rules":"firestore.rules","indexes":"firestore.indexes.json"},"storage":{"rules":"storage.rules"},"flutter":{"platforms":{"android":{"default":{"projectId":"summerhacks7","appId":"1:106956907630:android:acd79e3d8c3be63da7327f","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"summerhacks7","configurations":{"android":"1:106956907630:android:acd79e3d8c3be63da7327f","ios":"1:106956907630:ios:7a286bf5b3759d8fa7327f","web":"1:106956907630:web:0c78471ed39e0648a7327f"}}}}}}
